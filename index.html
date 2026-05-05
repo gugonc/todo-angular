@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR" ng-app="todoApp">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TO-DO</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body ng-controller="TodoController">
+    <div class="noise"></div>
+
+    <main class="container">
+      <header class="header">
+        <div class="header-label">AngularJS 1.x</div>
+        <h1 class="title">TO<span class="accent">·</span>DO</h1>
+        <p class="subtitle">{{ remaining() }} tarefas pendentes</p>
+      </header>
+
+      <!-- Input -->
+      <div class="input-wrapper">
+        <input
+          class="task-input"
+          type="text"
+          ng-model="newTask"
+          ng-keyup="$event.keyCode === 13 && addTask()"
+          placeholder="Nova tarefa..."
+          autofocus
+        />
+        <button class="add-btn" ng-click="addTask()">
+          <span>+</span>
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <button
+          class="filter-btn"
+          ng-class="{active: filter === 'all'}"
+          ng-click="setFilter('all')"
+        >
+          Todas
+        </button>
+        <button
+          class="filter-btn"
+          ng-class="{active: filter === 'active'}"
+          ng-click="setFilter('active')"
+        >
+          Ativas
+        </button>
+        <button
+          class="filter-btn"
+          ng-class="{active: filter === 'done'}"
+          ng-click="setFilter('done')"
+        >
+          Feitas
+        </button>
+      </div>
+
+      <!-- Task List -->
+      <ul class="task-list">
+        <li
+          class="task-item"
+          ng-repeat="task in filteredTasks() track by $index"
+          ng-class="{done: task.completed, removing: task.removing}"
+        >
+          <button class="check-btn" ng-click="toggleTask(task)">
+            <span class="check-icon" ng-if="task.completed">✓</span>
+          </button>
+
+          <span
+            class="task-text"
+            ng-if="!task.editing"
+            ng-dblclick="editTask(task)"
+          >
+            {{ task.text }}
+          </span>
+          <input
+            class="task-edit-input"
+            ng-if="task.editing"
+            ng-model="task.editText"
+            ng-blur="saveEdit(task)"
+            ng-keyup="$event.keyCode === 13 && saveEdit(task); $event.keyCode === 27 && cancelEdit(task)"
+            ng-focus="true"
+            auto-focus
+          />
+
+          <button class="delete-btn" ng-click="removeTask(task)">✕</button>
+        </li>
+
+        <li class="empty-state" ng-if="filteredTasks().length === 0">
+          <span ng-if="filter === 'all'">Nenhuma tarefa ainda.</span>
+          <span ng-if="filter === 'active'">Tudo feito! 🎉</span>
+          <span ng-if="filter === 'done'">Nada concluído ainda.</span>
+        </li>
+      </ul>
+
+      <!-- Footer -->
+      <div class="footer" ng-if="tasks.length > 0">
+        <span>{{ completed() }} concluídas</span>
+        <button
+          class="clear-btn"
+          ng-click="clearCompleted()"
+          ng-if="completed() > 0"
+        >
+          Limpar feitas
+        </button>
+      </div>
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
