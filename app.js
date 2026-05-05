@@ -22,13 +22,7 @@ angular
       $scope.filter = "all";
 
       var saved = localStorage.getItem("ng1-todos");
-      $scope.tasks = saved
-        ? JSON.parse(saved)
-        : [
-            { text: "Estudar AngularJS 1.x", completed: true },
-            { text: "Fazer deploy no Vercel", completed: false },
-            { text: "Criar mais TO-DOs", completed: false },
-          ];
+      $scope.tasks = saved;
 
       function save() {
         localStorage.setItem("ng1-todos", JSON.stringify($scope.tasks));
