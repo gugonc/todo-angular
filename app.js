@@ -22,7 +22,13 @@ angular
       $scope.filter = "all";
 
       var saved = localStorage.getItem("ng1-todos");
-      $scope.tasks = saved;
+      $scope.tasks = saved
+        ? JSON.parse(saved)
+        : [
+            { text: "Teste 1", completed: true },
+            { text: "Teste 2", completed: false },
+            { text: "Teste 3", completed: false },
+          ];
 
       function save() {
         localStorage.setItem("ng1-todos", JSON.stringify($scope.tasks));
