@@ -19,7 +19,7 @@ angular
     "$scope",
     "$http",
     function ($scope, $http) {
-      var API = "demo-production-ffd8.up.railway.app/api/tasks";
+      var API = "https://demo-production-ffd8.up.railway.app/api/tasks";
 
       $scope.newTask = "";
       $scope.filter = "all";
