@@ -17,47 +17,53 @@ angular
 
   .controller("TodoController", [
     "$scope",
-    function ($scope) {
+    "$http",
+    function ($scope, $http) {
+      var API = "demo-production-ffd8.up.railway.app/api/tasks";
+
       $scope.newTask = "";
       $scope.filter = "all";
+      $scope.tasks = [];
 
-      var saved = localStorage.getItem("ng1-todos");
-      $scope.tasks = saved
-        ? JSON.parse(saved)
-        : [
-            { text: "Teste 1", completed: true },
-            { text: "Teste 2", completed: false },
-            { text: "Teste 3", completed: false },
-          ];
-
-      function save() {
-        localStorage.setItem("ng1-todos", JSON.stringify($scope.tasks));
+      // Buscar tarefas ao carregar a página
+      function loadTasks() {
+        $http.get(API).then(function (res) {
+          $scope.tasks = res.data;
+        });
       }
+      loadTasks();
 
+      // Adicionar
       $scope.addTask = function () {
         var text = ($scope.newTask || "").trim();
         if (!text) return;
-        $scope.tasks.push({ text: text, completed: false, editing: false });
-        $scope.newTask = "";
-        save();
+        $http.post(API, { text: text }).then(function (res) {
+          $scope.tasks.push(res.data);
+          $scope.newTask = "";
+        });
       };
 
+      // Marcar como feita / desfazer
       $scope.toggleTask = function (task) {
-        task.completed = !task.completed;
-        save();
+        $http.patch(API + "/" + task.id).then(function (res) {
+          task.completed = res.data.completed;
+        });
       };
 
+      // Remover
       $scope.removeTask = function (task) {
         task.removing = true;
         setTimeout(function () {
           $scope.$apply(function () {
-            var idx = $scope.tasks.indexOf(task);
-            if (idx !== -1) $scope.tasks.splice(idx, 1);
-            save();
+            $http.delete(API + "/" + task.id).then(function () {
+              var idx = $scope.tasks.indexOf(task);
+              if (idx !== -1) $scope.tasks.splice(idx, 1);
+            });
           });
         }, 300);
       };
 
+      // Editar (só local — salva no blur/enter)
       $scope.editTask = function (task) {
         task.editing = true;
         task.editText = task.text;
@@ -67,20 +73,26 @@ angular
         var text = (task.editText || "").trim();
         if (text) task.text = text;
         task.editing = false;
-        save();
       };
 
       $scope.cancelEdit = function (task) {
         task.editing = false;
       };
 
+      // Limpar concluídas
       $scope.clearCompleted = function () {
+        var done = $scope.tasks.filter(function (t) {
+          return t.completed;
+        });
+        done.forEach(function (task) {
+          $http.delete(API + "/" + task.id);
+        });
         $scope.tasks = $scope.tasks.filter(function (t) {
           return !t.completed;
         });
-        save();
       };
 
+      // Filtros
       $scope.setFilter = function (f) {
         $scope.filter = f;
       };
